@@ -33,7 +33,7 @@ public class DemoApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        userAgent = Util.getUserAgent(this, "PatrickTest");
+        userAgent = Util.getUserAgent(this, getText(R.string.app_name).toString());
     }
 
     DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {

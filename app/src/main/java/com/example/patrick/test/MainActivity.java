@@ -10,7 +10,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -49,20 +51,59 @@ public class MainActivity extends Activity {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        mEdit.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN)
+                {
+                    switch (i)
+                    {
+                        case KeyEvent.KEYCODE_DPAD_CENTER:
+                        case KeyEvent.KEYCODE_ENTER:
+                            loadBlogger();
+                            return true;
+                        default:
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
+
         Button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String blogger_name = mEdit.getText().toString();
-                    if (blogger_name.length() > 0) {
-                        new FetchTumblrData(blogger_name).execute();
-                    } else {
-                        // prompt message to handle
-                        show_alert_message(EXTRA_MESSAGE, "Blogger name should not be blank!");
-                    }
+                    loadBlogger();
                 }
             }
         );
         progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private void loadBlogger() {
+        String blogger_name = mEdit.getText().toString();
+        if (blogger_name.length() > 0) {
+            mEdit.clearFocus();
+            hideSoftKeyboard(MainActivity.this);
+            new FetchTumblrData(blogger_name).execute();
+        } else {
+            // prompt message to handle
+            show_alert_message(getText(R.string.app_name).toString(), "Blogger name should not be blank!");
+        }
+    }
+
+    private static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) activity.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        try {
+            assert activity.getCurrentFocus() != null;
+            assert activity.getCurrentFocus().getWindowToken() != null;
+            inputMethodManager.hideSoftInputFromWindow(
+                    activity.getCurrentFocus().getWindowToken(), 0);
+        } catch (java.lang.NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     private void show_alert_message(String title, String message) {
@@ -97,29 +138,21 @@ public class MainActivity extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
-            // Will contain the raw JSON response as a string.
-            String forecastJsonStr;
+            String JsonStr;
 
             try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
                 if (blog_name != null) {
                     if (blog_name.length() > 0) {
                         String url_str = "https://api.tumblr.com/v2/blog/" + blog_name + "/posts/video?api_key=" + oauth_key;
                         URL url = new URL(url_str);
 
-                        // Create the request to OpenWeatherMap, and open the connection
                         urlConnection = (HttpURLConnection) url.openConnection();
                         urlConnection.setRequestMethod("GET");
                         urlConnection.connect();
 
-                        // Read the input stream into a String
                         InputStream inputStream = urlConnection.getInputStream();
                         StringBuilder buffer = new StringBuilder();
                         if (inputStream == null) {
@@ -131,25 +164,19 @@ public class MainActivity extends Activity {
 
                         String line;
                         while ((line = reader.readLine()) != null) {
-                            // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                            // But it does make debugging a *lot* easier if you print out the completed
-                            // buffer for debugging.
                             buffer.append(line).append("\n");
                         }
 
                         if (buffer.length() == 0) {
-                            // Stream was empty.  No point in parsing.
                             return null;
                         }
-                        forecastJsonStr = buffer.toString();
-                        return forecastJsonStr;
+                        JsonStr = buffer.toString();
+                        return JsonStr;
                     }
                 }
                 return null;
             } catch (IOException e) {
                 Log.e("PlaceholderFragment", "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
                 return null;
             } finally {
                 if (urlConnection != null) {
@@ -178,13 +205,13 @@ public class MainActivity extends Activity {
                         adapter.setOnItemClickListener(new OnItemClickListener() {
                             @Override
                             public void onItemClick(VideoItem item) {
-                                on_list_item_clicked(item.getVideo_url());
+                                on_list_item_clicked(item.getVideourl());
                             }
                         });
                         mRecyclerView.setAdapter(adapter);
                     }
                 } else {
-                    show_alert_message(EXTRA_MESSAGE, "You may entered a wrong blogger name, please try again!");
+                    show_alert_message(getText(R.string.app_name).toString(), "You may entered a wrong blogger name, please try again!");
                 }
             } catch (java.lang.NullPointerException e) {
                 e.printStackTrace();
@@ -207,10 +234,7 @@ public class MainActivity extends Activity {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject post = jsonArray.optJSONObject(i);
-                VideoItem item = new VideoItem();
-                item.setTitle(post.optString("slug"));
-                item.setVideo_url(post.optString("video_url"));
-                item.setThumbnail(post.optString("thumbnail_url"));
+                VideoItem item = new VideoItem(post);
                 videoItemList.add(item);
             }
         } catch (JSONException e) {

@@ -71,7 +71,7 @@ import java.util.Locale;
   private final Timeline.Period period;
   private final long startTimeMs;
 
-  public EventLogger() {
+  EventLogger() {
     window = new Timeline.Window();
     period = new Timeline.Period();
     startTimeMs = SystemClock.elapsedRealtime();

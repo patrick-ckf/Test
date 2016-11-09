@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Test</string>
+    <string name="app_name">TumblrLoader</string>
     <string name="title_activity_display_message">My Message</string>
     <string name="load">Load</string>
     <string name="thumbnail">thumbnail</string>

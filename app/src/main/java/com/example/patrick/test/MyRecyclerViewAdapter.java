@@ -1,50 +1,37 @@
 package com.example.patrick.test;
 
-/**
- * Created by patrick on 7/11/2016.
- */
-
 import android.content.Context;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import java.util.List;
 import android.support.v7.widget.RecyclerView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-/**
- * Created by patrick on 4/11/2016.
- */
-
-public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.CustomViewHolder> {
+class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.CustomViewHolder> {
     private List<VideoItem> videoItemList;
     private Context mContext;
 
     private OnItemClickListener onItemClickListener;
 
-    public MyRecyclerViewAdapter(Context context, List<VideoItem> videoItemList) {
+    MyRecyclerViewAdapter(Context context, List<VideoItem> videoItemList) {
         this.videoItemList = videoItemList;
         this.mContext = context;
+        this.onItemClickListener = null;
     }
 
-    public OnItemClickListener getOnItemClickListener() {
-        return onItemClickListener;
-    }
-
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_row, null);
-        CustomViewHolder viewHolder = new CustomViewHolder(view);
-        return viewHolder;
+        return new CustomViewHolder(view);
     }
 
     @Override
@@ -59,7 +46,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                     .into(customViewHolder.imageView);
         }
 
-        //Setting text view title
         //customViewHolder.textView.setText(feedItem.getTitle());
 
         View.OnClickListener listener = new View.OnClickListener() {
@@ -79,7 +65,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         };
 
         customViewHolder.imageView.setOnClickListener(listener);
-        //customViewHolder.textView.setOnClickListener(listener);
+        customViewHolder.textView.setOnClickListener(listener);
     }
 
     @Override
@@ -88,15 +74,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     }
 
     class CustomViewHolder extends RecyclerView.ViewHolder {
-        protected ImageView imageView;
-        //protected TextView textView;
+        ImageView imageView;
+        TextView textView;
 
-        public CustomViewHolder(View view) {
+        CustomViewHolder(View view) {
             super(view);
+            this.textView = (TextView) view.findViewById(R.id.title);
+            this.textView.setTag(this);
             this.imageView = (ImageView) view.findViewById(R.id.thumbnail);
             this.imageView.setTag(this);
-            //this.textView = (TextView) view.findViewById(R.id.title);
-            //this.textView.setTag(this);
         }
     }
 }
