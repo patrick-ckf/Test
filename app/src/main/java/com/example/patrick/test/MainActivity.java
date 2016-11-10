@@ -17,6 +17,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.query.Delete;
+import com.activeandroid.query.Select;
+import com.scottyab.aescrypt.AESCrypt;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,10 +32,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
+    public final static String AES_PASSWORD = "tumblr_loader";
     public final static String EXTRA_MESSAGE = "com.example.patrick.test.main";
     public final static String oauth_key = "AdTG7mb7yTD1ccUZPWug2kejxQqyGGwd2lXhWWrxNndKcS0sBK";
 
@@ -38,15 +45,21 @@ public class MainActivity extends Activity {
     private ProgressBar progressBar;
     private RecyclerView mRecyclerView;
 
+    private String mEncryptedJsonStr;
+
     private List<VideoItem> videoItemList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        Button Button = (Button) findViewById(R.id.load_btn);
+        //new Delete().from(Blogger.class).where("name = ?", "xxxsexxx").execute();
+        //new Delete().from(Blogger.class).where("name = ?", "av-jokbari").execute();
+        //List<Blogger> list = new Select().from(Blogger.class).execute();
         mEdit = (EditText) findViewById(R.id.blogger_name);
+        Button Button = (Button) findViewById(R.id.load_btn);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -71,20 +84,41 @@ public class MainActivity extends Activity {
         });
 
         Button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    loadBlogger();
-                }
-            }
+                                      @Override
+                                      public void onClick(View v) {
+                                          loadBlogger();
+                                      }
+                                  }
         );
+
         progressBar.setVisibility(View.INVISIBLE);
+
+        Blogger temp = getBlogger();
+        if (temp != null) {
+            Log.d(getText(R.string.app_name).toString(), temp.name);
+            mEdit.setText(temp.name);
+            try {
+
+                if (temp.json != null && temp.json.length() > 0) {
+                    String jsonStr = AESCrypt.decrypt(AES_PASSWORD, temp.json);
+                    postProcessJson(jsonStr, false);
+                }
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            }
+            clear_keyboard();
+        }
+    }
+
+    private void clear_keyboard() {
+        mEdit.clearFocus();
+        hideSoftKeyboard(MainActivity.this);
     }
 
     private void loadBlogger() {
         String blogger_name = mEdit.getText().toString();
         if (blogger_name.length() > 0) {
-            mEdit.clearFocus();
-            hideSoftKeyboard(MainActivity.this);
+            clear_keyboard();
             new FetchTumblrData(blogger_name).execute();
         } else {
             // prompt message to handle
@@ -196,19 +230,11 @@ public class MainActivity extends Activity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             progressBar.setVisibility(View.GONE);
-
             try {
                 if (s != null) {
                     if (!s.isEmpty()) {
-                        parseResult(s);
-                        MyRecyclerViewAdapter adapter = new MyRecyclerViewAdapter(MainActivity.this, videoItemList);
-                        adapter.setOnItemClickListener(new OnItemClickListener() {
-                            @Override
-                            public void onItemClick(VideoItem item) {
-                                on_list_item_clicked(item.getVideourl());
-                            }
-                        });
-                        mRecyclerView.setAdapter(adapter);
+                        postProcessJson(s, true);
+                        saveBloggertoDB();
                     }
                 } else {
                     show_alert_message(getText(R.string.app_name).toString(), "You may entered a wrong blogger name, please try again!");
@@ -218,6 +244,50 @@ public class MainActivity extends Activity {
             }
         }
     }
+
+    private void postProcessJson(String str, boolean encrypt) {
+        videoItemList = null;
+        if (encrypt) {
+            try {
+                mEncryptedJsonStr = AESCrypt.encrypt(AES_PASSWORD, str);
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            }
+        }
+        parseResult(str);
+        MyRecyclerViewAdapter adapter = new MyRecyclerViewAdapter(MainActivity.this, videoItemList);
+        adapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(VideoItem item) {
+                on_list_item_clicked(item.getVideourl());
+            }
+        });
+        mRecyclerView.setAdapter(adapter);
+    }
+
+    private void saveBloggertoDB() {
+        String blog_name = mEdit.getText().toString();
+        Blogger item = new Select().from(Blogger.class).where("name = ?", blog_name).executeSingle();
+        if (item == null) {
+            ActiveAndroid.beginTransaction();
+            try {
+                Blogger blogger = new Blogger();
+                blogger.name = blog_name;
+                blogger.json = mEncryptedJsonStr;
+                blogger.save();
+                ActiveAndroid.setTransactionSuccessful();
+                //List<Blogger> list = new Select().from(Blogger.class).execute();
+                //Log.d("Blogger name", blog_name);
+            } finally {
+                ActiveAndroid.endTransaction();
+            }
+        }
+    }
+
+    private static Blogger getBlogger() {
+        return new Select().from(Blogger.class).orderBy("Id DESC").limit(1).executeSingle();
+    }
+
 
     private void on_list_item_clicked(String url) {
         Intent intent = new Intent(this, VideoPlayerActivity.class);

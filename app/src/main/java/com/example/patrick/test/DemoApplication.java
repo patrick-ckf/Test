@@ -16,6 +16,8 @@
 package com.example.patrick.test;
 
 import android.app.Application;
+
+import com.activeandroid.ActiveAndroid;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -26,13 +28,14 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Placeholder application to facilitate overriding Application methods for debugging and testing.
  */
-public class DemoApplication extends Application {
+public class DemoApplication extends com.activeandroid.app.Application {
 
     protected String userAgent;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        ActiveAndroid.initialize(this);
         userAgent = Util.getUserAgent(this, getText(R.string.app_name).toString());
     }
 

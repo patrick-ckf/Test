@@ -15,7 +15,7 @@ class VideoItem {
     // Constructor to convert JSON object into a Java class instance
     VideoItem(JSONObject object){
         try {
-            this.title = object.getString("source_title");
+            //this.title = object.getString("source_title");
             this.videourl = object.getString("video_url");
             this.thumbnail = object.getString("thumbnail_url");
         } catch (JSONException e) {

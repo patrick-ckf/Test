@@ -13,6 +13,13 @@
         android:name="com.example.patrick.test.DemoApplication"
         android:theme="@style/AppTheme">
 
+        <meta-data android:name="AA_DB_NAME" android:value="TumblrLoader.db" />
+        <meta-data android:name="AA_DB_VERSION" android:value="5" />
+        <meta-data
+            android:name="AA_MODELS"
+            android:value="com.example.patrick.test.Blogger" />
+
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
