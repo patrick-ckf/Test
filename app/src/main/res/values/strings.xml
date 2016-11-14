@@ -5,6 +5,7 @@
     <string name="thumbnail">thumbnail</string>
     <string name="description">Media Controls</string>
     <string name="blogger">Blogger</string>
+    <string name="history">History</string>
     <string name="selection_disabled">Disabled</string>
 
     <string name="selection_default">Default</string>

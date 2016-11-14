@@ -1,5 +1,5 @@
 package com.example.patrick.test;
 
-interface OnItemClickListener {
+interface VideoListingOnItemClickListener {
     void onItemClick(VideoItem item);
 }

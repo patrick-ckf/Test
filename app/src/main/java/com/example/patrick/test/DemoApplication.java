@@ -35,6 +35,7 @@ public class DemoApplication extends com.activeandroid.app.Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        //deleteDatabase("TumblrLoader.db");
         ActiveAndroid.initialize(this);
         userAgent = Util.getUserAgent(this, getText(R.string.app_name).toString());
     }

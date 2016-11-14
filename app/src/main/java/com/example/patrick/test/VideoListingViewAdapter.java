@@ -12,30 +12,30 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.CustomViewHolder> {
+class VideoListingViewAdapter extends RecyclerView.Adapter<VideoListingViewAdapter.ImageTextViewHolder> {
     private List<VideoItem> videoItemList;
     private Context mContext;
 
-    private OnItemClickListener onItemClickListener;
+    private VideoListingOnItemClickListener videoListingOnItemClickListener;
 
-    MyRecyclerViewAdapter(Context context, List<VideoItem> videoItemList) {
+    VideoListingViewAdapter(Context context, List<VideoItem> videoItemList) {
         this.videoItemList = videoItemList;
         this.mContext = context;
-        this.onItemClickListener = null;
+        this.videoListingOnItemClickListener = null;
     }
 
-    void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
-    }
-
-    @Override
-    public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_row, null);
-        return new CustomViewHolder(view);
+    void setVideoListingOnItemClickListener(VideoListingOnItemClickListener videoListingOnItemClickListener) {
+        this.videoListingOnItemClickListener = videoListingOnItemClickListener;
     }
 
     @Override
-    public void onBindViewHolder(CustomViewHolder customViewHolder, int i) {
+    public ImageTextViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.video_listing_item, null);
+        return new ImageTextViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ImageTextViewHolder customViewHolder, int i) {
         VideoItem feedItem = videoItemList.get(i);
 
         //Render image using Picasso library
@@ -51,13 +51,13 @@ class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.C
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CustomViewHolder holder = (CustomViewHolder) v.getTag();
+                ImageTextViewHolder holder = (ImageTextViewHolder) v.getTag();
                 if (holder != null) {
                     int pos = holder.getAdapterPosition();
                     if (pos >= 0) {
                         VideoItem feedItem = videoItemList.get(pos);
                         if (feedItem != null) {
-                            onItemClickListener.onItemClick(feedItem);
+                            videoListingOnItemClickListener.onItemClick(feedItem);
                         }
                     }
                 }
@@ -73,11 +73,11 @@ class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.C
         return (null != videoItemList ? videoItemList.size() : 0);
     }
 
-    class CustomViewHolder extends RecyclerView.ViewHolder {
+    class ImageTextViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView textView;
 
-        CustomViewHolder(View view) {
+        ImageTextViewHolder(View view) {
             super(view);
             this.textView = (TextView) view.findViewById(R.id.title);
             this.textView.setTag(this);

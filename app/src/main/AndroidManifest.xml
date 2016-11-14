@@ -17,7 +17,7 @@
         <meta-data android:name="AA_DB_VERSION" android:value="5" />
         <meta-data
             android:name="AA_MODELS"
-            android:value="com.example.patrick.test.Blogger" />
+            android:value="com.example.patrick.test.BloggerDB" />
 
 
         <activity android:name=".MainActivity">
@@ -27,6 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".VideoListingActivity" />
         <activity android:name=".VideoPlayerActivity" />
     </application>
 

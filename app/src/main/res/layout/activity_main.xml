@@ -20,7 +20,7 @@
         android:layout_alignParentStart="false"
         android:layout_alignParentEnd="false"
         android:layout_marginTop="@dimen/abc_text_size_small_material"
-        android:textColor="@color/abc_primary_text_disable_only_material_light" />
+        android:textColor="@color/colorPrimary" />
 
     <EditText
         android:layout_width="220dp"
@@ -41,11 +41,19 @@
         android:layout_toRightOf="@id/blogger_name"
         android:layout_gravity="top|right" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/history"
+        android:id="@+id/staticHistory"
+        android:layout_below="@+id/load_btn"
+        android:textColor="@color/colorPrimaryDark"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/load_btn"
+        android:layout_below="@+id/staticHistory"
         android:layout_marginEnd="45dp"
         android:layout_marginTop="13dp" />
 
