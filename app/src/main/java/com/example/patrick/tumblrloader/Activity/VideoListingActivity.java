@@ -1,4 +1,4 @@
-package com.example.patrick.test;
+package com.example.patrick.tumblrloader.Activity;
 
 
 import android.app.Activity;
@@ -15,6 +15,11 @@ import android.widget.ProgressBar;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Select;
+import com.example.patrick.tumblrloader.Adaptor.VideoItem;
+import com.example.patrick.tumblrloader.Adaptor.VideoListingOnItemClickListener;
+import com.example.patrick.tumblrloader.Adaptor.VideoListingViewAdaptor;
+import com.example.patrick.tumblrloader.DB.BloggerDB;
+import com.example.patrick.tumblrloader.R;
 import com.scottyab.aescrypt.AESCrypt;
 
 import org.json.JSONArray;
@@ -33,7 +38,7 @@ import java.util.List;
 
 public class VideoListingActivity extends Activity {
     public final static String AES_PASSWORD = "tumblr_loader";
-    public final static String EXTRA_MESSAGE = "com.example.patrick.test.main";
+    public final static String EXTRA_MESSAGE = "com.example.patrick.tumblrloader.main";
     public final static String oauth_key = "AdTG7mb7yTD1ccUZPWug2kejxQqyGGwd2lXhWWrxNndKcS0sBK";
 
     private RecyclerView mRecyclerView;
@@ -190,7 +195,7 @@ public class VideoListingActivity extends Activity {
             }
         }
         parseResult(str);
-        VideoListingViewAdapter adapter = new VideoListingViewAdapter(VideoListingActivity.this, videoItemList);
+        VideoListingViewAdaptor adapter = new VideoListingViewAdaptor(VideoListingActivity.this, videoItemList);
         adapter.setVideoListingOnItemClickListener(new VideoListingOnItemClickListener() {
             @Override
             public void onItemClick(VideoItem item) {

@@ -1,27 +1,29 @@
-package com.example.patrick.test;
+package com.example.patrick.tumblrloader.Adaptor;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.List;
-import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
-class BloggerListingViewAdaptor extends RecyclerView.Adapter<BloggerListingViewAdaptor.BlogListViewHolder> {
+import com.example.patrick.tumblrloader.R;
+
+import java.util.List;
+
+public class BloggerListingViewAdaptor extends RecyclerView.Adapter<BloggerListingViewAdaptor.BlogListViewHolder> {
     private List<BloggerItem> bloggerList;
     private Context mContext;
 
     private BloggerListingOnItemClickListener onItemClickListener;
 
-    BloggerListingViewAdaptor(Context context, List<BloggerItem> bloggerList) {
+    public BloggerListingViewAdaptor(Context context, List<BloggerItem> bloggerList) {
         this.bloggerList = bloggerList;
         this.mContext = context;
         this.onItemClickListener = null;
     }
 
-    void setOnItemClickListener(BloggerListingOnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(BloggerListingOnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 

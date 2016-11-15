@@ -1,4 +1,4 @@
-package com.example.patrick.test;
+package com.example.patrick.tumblrloader.Activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,20 +9,26 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
+import com.example.patrick.tumblrloader.Adaptor.BloggerItem;
+import com.example.patrick.tumblrloader.Adaptor.BloggerListingOnItemClickListener;
+import com.example.patrick.tumblrloader.Adaptor.BloggerListingViewAdaptor;
+import com.example.patrick.tumblrloader.DB.BloggerDB;
+import com.example.patrick.tumblrloader.R;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+//import android.widget.ProgressBar;
+
 public class MainActivity extends Activity {
-    public final static String EXTRA_MESSAGE = "com.example.patrick.test.main";
+    public final static String EXTRA_MESSAGE = "com.example.patrick.tumblrloader.main";
 
     private EditText mEdit;
-    private ProgressBar progressBar;
+    //private ProgressBar progressBar;
     private RecyclerView mRecyclerView;
 
     private List<BloggerItem> bloggerList;
@@ -35,7 +41,7 @@ public class MainActivity extends Activity {
 
         mEdit = (EditText) findViewById(R.id.blogger_name);
         Button Button = (Button) findViewById(R.id.load_btn);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        //progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -70,7 +76,7 @@ public class MainActivity extends Activity {
                                   }
         );
 
-        progressBar.setVisibility(View.INVISIBLE);
+        //progressBar.setVisibility(View.INVISIBLE);
     }
 
     private void changeBloggerListing() {

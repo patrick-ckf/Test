@@ -1,19 +1,19 @@
-package com.example.patrick.test;
+package com.example.patrick.tumblrloader.Adaptor;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-class VideoItem {
-    private String title;
+public class VideoItem {
+    //private String title;
     private String videourl;
     private String thumbnail;
 
-    String getTitle() { return this.title; }
-    String getVideourl () { return this.videourl; }
-    String getThumbnail () { return this.thumbnail; }
+    //public String getTitle() { return this.title; }
+    public String getVideourl () { return this.videourl; }
+    String getThumbnail() { return this.thumbnail; }
 
     // Constructor to convert JSON object into a Java class instance
-    VideoItem(JSONObject object){
+    public VideoItem(JSONObject object){
         try {
             //this.title = object.getString("source_title");
             this.videourl = object.getString("video_url");

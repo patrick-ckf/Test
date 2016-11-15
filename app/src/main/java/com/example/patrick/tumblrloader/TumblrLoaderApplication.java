@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.patrick.test;
-
-import android.app.Application;
+package com.example.patrick.tumblrloader;
 
 import com.activeandroid.ActiveAndroid;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -28,7 +26,7 @@ import com.google.android.exoplayer2.util.Util;
 /**
  * Placeholder application to facilitate overriding Application methods for debugging and testing.
  */
-public class DemoApplication extends com.activeandroid.app.Application {
+public class TumblrLoaderApplication extends com.activeandroid.app.Application {
 
     protected String userAgent;
 
@@ -40,7 +38,7 @@ public class DemoApplication extends com.activeandroid.app.Application {
         userAgent = Util.getUserAgent(this, getText(R.string.app_name).toString());
     }
 
-    DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+    public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
         return new DefaultDataSourceFactory(this, bandwidthMeter,
                 buildHttpDataSourceFactory(bandwidthMeter));
     }

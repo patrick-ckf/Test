@@ -1,30 +1,32 @@
-package com.example.patrick.test;
+package com.example.patrick.tumblrloader.Adaptor;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import java.util.List;
-import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
+import com.example.patrick.tumblrloader.R;
 import com.squareup.picasso.Picasso;
 
-class VideoListingViewAdapter extends RecyclerView.Adapter<VideoListingViewAdapter.ImageTextViewHolder> {
+import java.util.List;
+
+public class VideoListingViewAdaptor extends RecyclerView.Adapter<VideoListingViewAdaptor.ImageTextViewHolder> {
     private List<VideoItem> videoItemList;
     private Context mContext;
 
     private VideoListingOnItemClickListener videoListingOnItemClickListener;
 
-    VideoListingViewAdapter(Context context, List<VideoItem> videoItemList) {
+    public VideoListingViewAdaptor(Context context, List<VideoItem> videoItemList) {
         this.videoItemList = videoItemList;
         this.mContext = context;
         this.videoListingOnItemClickListener = null;
     }
 
-    void setVideoListingOnItemClickListener(VideoListingOnItemClickListener videoListingOnItemClickListener) {
+    public void setVideoListingOnItemClickListener(VideoListingOnItemClickListener videoListingOnItemClickListener) {
         this.videoListingOnItemClickListener = videoListingOnItemClickListener;
     }
 

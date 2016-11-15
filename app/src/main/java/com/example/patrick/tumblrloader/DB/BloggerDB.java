@@ -1,4 +1,4 @@
-package com.example.patrick.test;
+package com.example.patrick.tumblrloader.DB;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;

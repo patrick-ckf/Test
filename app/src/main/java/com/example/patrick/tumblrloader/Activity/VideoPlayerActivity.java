@@ -1,4 +1,4 @@
-package com.example.patrick.test;
+package com.example.patrick.tumblrloader.Activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -9,9 +9,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.example.patrick.tumblrloader.R;
+import com.example.patrick.tumblrloader.TumblrLoaderApplication;
+import com.example.patrick.tumblrloader.other.EventLogger;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -36,7 +40,7 @@ import com.google.android.exoplayer2.util.Util;
 
 public class VideoPlayerActivity extends Activity implements ExoPlayer.EventListener,
         TrackSelector.EventListener<MappingTrackSelector.MappedTrackInfo>{
-    public final static String EXTRA_MESSAGE = "com.example.patrick.test.main";
+    public final static String EXTRA_MESSAGE = "com.example.patrick.tumblrloader.main";
 
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
@@ -152,7 +156,7 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
     }
 
     private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-        DemoApplication app = (DemoApplication) getApplication();
+        TumblrLoaderApplication app = (TumblrLoaderApplication) getApplication();
         return app.buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
     }
 
@@ -189,8 +193,8 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             initializePlayer();
         } else {

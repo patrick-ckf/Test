@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.patrick.test;
+package com.example.patrick.tumblrloader.other;
 
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -44,6 +45,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelections;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
@@ -52,7 +54,8 @@ import java.util.Locale;
 /**
  * Logs player events using {@link Log}.
  */
-/* package */ final class EventLogger implements ExoPlayer.EventListener,
+/* package */
+public final class EventLogger implements ExoPlayer.EventListener,
     AudioRendererEventListener, VideoRendererEventListener, AdaptiveMediaSourceEventListener,
     ExtractorMediaSource.EventListener, StreamingDrmSessionManager.EventListener,
     TrackSelector.EventListener<MappedTrackInfo>, MetadataRenderer.Output<List<Id3Frame>> {
@@ -71,7 +74,7 @@ import java.util.Locale;
   private final Timeline.Period period;
   private final long startTimeMs;
 
-  EventLogger() {
+  public EventLogger() {
     window = new Timeline.Window();
     period = new Timeline.Period();
     startTimeMs = SystemClock.elapsedRealtime();
