@@ -16,15 +16,15 @@
         <TextView
             android:id="@+id/blogger_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/activity_listing_height"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp"
-            android:maxLines="3"
-            android:padding="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:textColor="#444"
-            android:textSize="24sp"
-            android:textStyle="bold"/>
+            android:maxLines="1"
+            android:paddingStart="@dimen/activity_two_side_margin"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="#008080"
+            android:elevation="@dimen/elevation"
+            android:background="@drawable/myrect"
+            android:gravity="start|center_vertical" />
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>

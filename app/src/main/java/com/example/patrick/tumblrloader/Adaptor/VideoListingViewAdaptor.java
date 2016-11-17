@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.patrick.tumblrloader.R;
 import com.squareup.picasso.Picasso;
@@ -48,8 +47,6 @@ public class VideoListingViewAdaptor extends RecyclerView.Adapter<VideoListingVi
                     .into(customViewHolder.imageView);
         }
 
-        //customViewHolder.textView.setText(feedItem.getTitle());
-
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,7 +64,6 @@ public class VideoListingViewAdaptor extends RecyclerView.Adapter<VideoListingVi
         };
 
         customViewHolder.imageView.setOnClickListener(listener);
-        customViewHolder.textView.setOnClickListener(listener);
     }
 
     @Override
@@ -77,12 +73,9 @@ public class VideoListingViewAdaptor extends RecyclerView.Adapter<VideoListingVi
 
     class ImageTextViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        TextView textView;
 
         ImageTextViewHolder(View view) {
             super(view);
-            this.textView = (TextView) view.findViewById(R.id.title);
-            this.textView.setTag(this);
             this.imageView = (ImageView) view.findViewById(R.id.thumbnail);
             this.imageView.setTag(this);
         }

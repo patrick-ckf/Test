@@ -5,12 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
-import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.example.patrick.tumblrloader.Adaptor.BloggerItem;
 import com.example.patrick.tumblrloader.Adaptor.BloggerListingOnItemClickListener;
@@ -22,13 +21,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-//import android.widget.ProgressBar;
-
 public class MainActivity extends Activity {
     public final static String EXTRA_MESSAGE = "com.example.patrick.tumblrloader.main";
 
+    public final static int time_interval = 60 * 60 * 1000;
+
     private EditText mEdit;
-    //private ProgressBar progressBar;
     private RecyclerView mRecyclerView;
 
     private List<BloggerItem> bloggerList;
@@ -40,8 +38,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mEdit = (EditText) findViewById(R.id.blogger_name);
-        Button Button = (Button) findViewById(R.id.load_btn);
-        //progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -66,17 +62,19 @@ public class MainActivity extends Activity {
             }
         });
 
-        Button.setOnClickListener(new View.OnClickListener() {
-                                      @Override
-                                      public void onClick(View v) {
-                                          String blogger_name = mEdit.getText().toString();
-                                          if (blogger_name.length() > 0)
-                                              loadBloggerListing(blogger_name);
-                                      }
-                                  }
-        );
+        setUpItemTouchHelper();
+    }
 
-        //progressBar.setVisibility(View.INVISIBLE);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        changeBloggerListing();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        bloggerList = null;
     }
 
     private void changeBloggerListing() {
@@ -94,15 +92,16 @@ public class MainActivity extends Activity {
             long _time = list.get(i).time;
             Calendar c = Calendar.getInstance();
             long cur_time = c.getTimeInMillis();
-            if (cur_time - _time >= 3600000) {
-                new Delete().from(BloggerDB.class).where("Name = ?", list.get(i).name).execute();
-            } else {
-                item.setName(list.get(i).name);
-                bloggerList.add(item);
+            if (cur_time - _time >= time_interval) {
+                BloggerDB b = new Select().from(BloggerDB.class).where("Name = ?", list.get(i).name).executeSingle();
+                b.json = null;
+                b.save();
             }
+            item.setName(list.get(i).name);
+            bloggerList.add(item);
         }
 
-        BloggerListingViewAdaptor adapter = new BloggerListingViewAdaptor(MainActivity.this, bloggerList);
+        BloggerListingViewAdaptor adapter = new BloggerListingViewAdaptor(bloggerList);
         adapter.setOnItemClickListener(new BloggerListingOnItemClickListener() {
             @Override
             public void onItemClick(BloggerItem item) {
@@ -112,21 +111,29 @@ public class MainActivity extends Activity {
         mRecyclerView.setAdapter(adapter);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        changeBloggerListing();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        bloggerList = null;
-    }
-
     private void loadBloggerListing(String blog) {
         Intent intent = new Intent(this, VideoListingActivity.class);
         intent.putExtra(EXTRA_MESSAGE, blog);
         startActivity(intent);
+    }
+
+    private void setUpItemTouchHelper() {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int swipedPosition = viewHolder.getAdapterPosition();
+                BloggerListingViewAdaptor adapter = (BloggerListingViewAdaptor)mRecyclerView.getAdapter();
+                adapter.remove(swipedPosition);
+            }
+
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 }

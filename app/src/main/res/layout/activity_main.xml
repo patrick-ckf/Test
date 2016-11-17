@@ -8,65 +8,50 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.patrick.tumblrloader.Activity.MainActivity">
-
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:text="@string/blogger"
-        android:id="@+id/textView"
-        android:layout_gravity="start|top"
-        android:layout_alignParentTop="false"
+        android:textSize="20sp"
+        android:id="@+id/Blogger"
         android:layout_alignParentStart="false"
         android:layout_alignParentEnd="false"
-        android:textColor="@color/colorPrimary" />
+        android:textColor="@color/colorPrimary"
+        android:gravity="start|center_vertical"
+        android:layout_alignBottom="@+id/blogger_name"
+        android:layout_marginStart="@dimen/activity_two_side_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
     <EditText
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="48dp"
         android:maxLines="1"
         android:hint="@string/blogger"
         android:id="@+id/blogger_name"
-        android:layout_toEndOf="@id/textView"
-        android:layout_gravity="center|top"
+        android:layout_gravity="top|end"
         android:imeOptions="actionSend"
-        android:inputType="text"/>
+        android:inputType="text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="@dimen/activity_two_side_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/load"
-        android:id="@+id/load_btn"
-        android:layout_toEndOf="@id/blogger_name"
-        android:layout_gravity="top|end" />
-
-    <!--
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="invisible" />
--->
-
-    <FrameLayout
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/load_btn"
-        android:layout_alignParentStart="true">
+        android:layout_height="30dp"
+        android:layout_marginStart="@dimen/activity_two_side_margin"
+        android:textSize="16sp"
+        android:text="@string/history"
+        android:id="@+id/staticHistory"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_below="@id/blogger_name"
+        android:gravity="left|center_vertical" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/history"
-            android:id="@+id/staticHistory"
-            android:textColor="@color/colorPrimaryDark"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_below="@id/staticHistory"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginStart="@dimen/activity_two_side_margin"/>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginEnd="45dp"
-            android:layout_marginTop="13dp" />
-
-    </FrameLayout>
 </RelativeLayout>

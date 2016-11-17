@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Select;
@@ -58,34 +59,49 @@ public class VideoListingActivity extends Activity {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        TextView BloggerNameTextView = (TextView) findViewById(R.id.blogger_name);
+
         Intent intent = getIntent();
         String blogger = intent.getStringExtra(EXTRA_MESSAGE);
 
+        String str = blogger + " >";
+
+        BloggerNameTextView.setText(str);
+
         if (find_blogger(blogger)) {
             BloggerDB blog = new Select().from(BloggerDB.class).where("name = ?", blogger).executeSingle();
-            try {
-                String jsonStr = AESCrypt.decrypt(AES_PASSWORD, blog.json);
-                postProcessJson(jsonStr, false);
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
+            if (blog.json != null) {
+                try {
+                    String jsonStr = AESCrypt.decrypt(AES_PASSWORD, blog.json);
+                    postProcessJson(jsonStr, false);
+                } catch (GeneralSecurityException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                new FetchTumblrData(blog.name).execute();
             }
         } else {
             new FetchTumblrData(blogger).execute();
-
         }
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+    }
+
     private void show_alert_message(String title, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(VideoListingActivity.this);
+        builder.setIcon(R.mipmap.ic_launcher);
         builder.setTitle(title);
         builder.setMessage(message);
-        builder.setCancelable(true);
-        builder.setNeutralButton(android.R.string.ok,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
+        builder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
 
         AlertDialog alert = builder.create();
         alert.show();
@@ -122,7 +138,14 @@ public class VideoListingActivity extends Activity {
                         urlConnection.setRequestMethod("GET");
                         urlConnection.connect();
 
-                        InputStream inputStream = urlConnection.getInputStream();
+                        InputStream inputStream;
+                        try {
+                            inputStream = urlConnection.getInputStream();
+                        } catch(java.io.FileNotFoundException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+
                         StringBuilder buffer = new StringBuilder();
                         if (inputStream == null) {
                             // Nothing to do.
@@ -169,7 +192,11 @@ public class VideoListingActivity extends Activity {
                 if (s != null) {
                     if (!s.isEmpty()) {
                         postProcessJson(s, true);
-                        saveBloggertoDB(blog_name);
+                        if (videoItemList != null) {
+                            if (videoItemList.size() > 0) {
+                                saveBloggertoDB(blog_name);
+                            }
+                        }
                     }
                 } else {
                     show_alert_message(getText(R.string.app_name).toString(), "You may entered a wrong blogger name, please try again!");
@@ -187,22 +214,31 @@ public class VideoListingActivity extends Activity {
 
     private void postProcessJson(String str, boolean encrypt) {
         videoItemList = null;
-        if (encrypt) {
-            try {
-                mEncryptedJsonStr = AESCrypt.encrypt(AES_PASSWORD, str);
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            }
-        }
+
         parseResult(str);
-        VideoListingViewAdaptor adapter = new VideoListingViewAdaptor(VideoListingActivity.this, videoItemList);
-        adapter.setVideoListingOnItemClickListener(new VideoListingOnItemClickListener() {
-            @Override
-            public void onItemClick(VideoItem item) {
-                on_list_item_clicked(item.getVideourl());
+        if (videoItemList != null) {
+            if (videoItemList.size() > 0) {
+                if (encrypt) {
+                    try {
+                        mEncryptedJsonStr = AESCrypt.encrypt(AES_PASSWORD, str);
+                    } catch (GeneralSecurityException e) {
+                        e.printStackTrace();
+                    }
+                }
+                VideoListingViewAdaptor adapter = new VideoListingViewAdaptor(VideoListingActivity.this, videoItemList);
+                adapter.setVideoListingOnItemClickListener(new VideoListingOnItemClickListener() {
+                    @Override
+                    public void onItemClick(VideoItem item) {
+                        on_list_item_clicked(item.getVideourl());
+                    }
+                });
+                mRecyclerView.setAdapter(adapter);
+            } else {
+                show_alert_message(getText(R.string.app_name).toString(), "No video listing of this blogger|");
             }
-        });
-        mRecyclerView.setAdapter(adapter);
+        } else {
+            show_alert_message(getText(R.string.app_name).toString(), "No video listing of this blogger|");
+        }
     }
 
     private void on_list_item_clicked(String url) {
@@ -214,14 +250,28 @@ public class VideoListingActivity extends Activity {
     private void parseResult(String result) {
         try {
             JSONObject mainObject = new JSONObject(result);
-            JSONObject responseObj = mainObject.optJSONObject("response");
-            JSONArray jsonArray = responseObj.optJSONArray("posts");
-            videoItemList = new ArrayList<>();
+            JSONObject responseObj = null;
+            JSONArray jsonArray = null;
+            if (mainObject.has("response")) {
+                responseObj = mainObject.optJSONObject("response");
+            }
+            if (responseObj != null) {
+                if (responseObj.has("posts")) jsonArray = responseObj.optJSONArray("posts");
+            }
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject post = jsonArray.optJSONObject(i);
-                VideoItem item = new VideoItem(post);
-                videoItemList.add(item);
+            if (jsonArray != null) {
+                if (jsonArray.length() > 0) {
+                    videoItemList = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject post = jsonArray.optJSONObject(i);
+                        if (post.has("video_url") && post.has("thumbnail_url")) {
+                            VideoItem item = new VideoItem(post);
+                            videoItemList.add(item);
+                        }
+                    }
+                } else {
+                    show_alert_message(getText(R.string.app_name).toString(), "No video listing of this blogger|");
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -77,7 +77,7 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
             ActionBar actionBar = getActionBar();
             try {
                 assert actionBar != null;
-                actionBar.hide();
+                if (actionBar != null) actionBar.hide();
             } catch (java.lang.NullPointerException e) {
                 e.printStackTrace();
             }
@@ -100,6 +100,11 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
 
     private void initializePlayer() {
         Intent intent = getIntent();
+        String url = intent.getStringExtra(EXTRA_MESSAGE);
+        if (url == null) {
+            onBackPressed();
+            return;
+        }
         if (player == null) {
             eventLogger = new EventLogger();
             TrackSelection.Factory videoTrackSelectionFactory =
@@ -125,13 +130,26 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
             playerNeedsSource = true;
         }
         if (playerNeedsSource) {
-            String url = intent.getStringExtra(EXTRA_MESSAGE);
-            Uri uri = Uri.parse(url);
 
-            MediaSource mediaSource = buildMediaSource(uri);
+            if (url != null) {
+                Uri uri = null;
+                try {
+                    uri = Uri.parse(url);
+                } catch (java.lang.NullPointerException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (uri != null) {
+                        MediaSource mediaSource = buildMediaSource(uri);
 
-            player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
-            playerNeedsSource = false;
+                        player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
+                        playerNeedsSource = false;
+                    } else {
+                        onBackPressed();
+                    }
+                }
+            } else {
+                onBackPressed();
+            }
         }
     }
 

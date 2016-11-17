@@ -1,25 +1,24 @@
 package com.example.patrick.tumblrloader.Adaptor;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.activeandroid.query.Select;
+import com.example.patrick.tumblrloader.DB.BloggerDB;
 import com.example.patrick.tumblrloader.R;
 
 import java.util.List;
 
 public class BloggerListingViewAdaptor extends RecyclerView.Adapter<BloggerListingViewAdaptor.BlogListViewHolder> {
     private List<BloggerItem> bloggerList;
-    private Context mContext;
 
     private BloggerListingOnItemClickListener onItemClickListener;
 
-    public BloggerListingViewAdaptor(Context context, List<BloggerItem> bloggerList) {
+    public BloggerListingViewAdaptor(List<BloggerItem> bloggerList) {
         this.bloggerList = bloggerList;
-        this.mContext = context;
         this.onItemClickListener = null;
     }
 
@@ -37,8 +36,8 @@ public class BloggerListingViewAdaptor extends RecyclerView.Adapter<BloggerListi
     public void onBindViewHolder(BlogListViewHolder customViewHolder, int i) {
         BloggerItem item = bloggerList.get(i);
 
-
-        customViewHolder.textView.setText(item.getName());
+        String str = "Blogger: "+ item.getName();
+        customViewHolder.textView.setText(str);
 
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
@@ -72,5 +71,17 @@ public class BloggerListingViewAdaptor extends RecyclerView.Adapter<BloggerListi
             this.textView = (TextView) view.findViewById(R.id.blogger_name);
             this.textView.setTag(this);
         }
+    }
+
+    public void remove(int position) {
+        if (position < 0 || position >= bloggerList.size()) {
+            return;
+        }
+
+        List<BloggerDB> list = new Select().from(BloggerDB.class).execute();
+        list.get(position);
+
+        bloggerList.remove(position);
+        notifyItemRemoved(position);
     }
 }

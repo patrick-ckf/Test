@@ -6,6 +6,8 @@
     <string name="description">Media Controls</string>
     <string name="blogger">Blogger</string>
     <string name="history">History</string>
+    <string name="update">Update</string>
+    <string name="time">Time</string>
 
     <!-- Video player strings-->
     <string name="selection_disabled">Disabled</string>
