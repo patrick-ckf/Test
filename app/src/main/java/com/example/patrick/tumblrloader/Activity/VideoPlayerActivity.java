@@ -1,7 +1,8 @@
 package com.example.patrick.tumblrloader.Activity;
 
-import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -10,9 +11,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.example.patrick.tumblrloader.Adapter.VideoItem;
 import com.example.patrick.tumblrloader.R;
 import com.example.patrick.tumblrloader.TumblrLoaderApplication;
 import com.example.patrick.tumblrloader.other.EventLogger;
@@ -24,6 +27,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
@@ -36,33 +40,43 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Util;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 
 public class VideoPlayerActivity extends Activity implements ExoPlayer.EventListener,
         TrackSelector.EventListener<MappingTrackSelector.MappedTrackInfo>{
-    public final static String EXTRA_MESSAGE = "com.example.patrick.tumblrloader.main";
+    //public final static String EXTRA_MESSAGE = "com.example.patrick.tumblrloader.main";
+    public final static String EXTRA_MESSAGE_SIGNLE_URL = "com.example.patrick.tumblrloader.url";
+    public final static String EXTRA_MESSAGE_PLAYLIST = "com.example.patrick.tumblrloader.playlist";
+    public final static String EXTRA_MESSAGE_LIST_OF_URL = "com.example.patrick.tumblrloader.url";
+    public final static String EXTRA_MESSAGE_POS = "com.example.patrick.tumblrloader.pos";
 
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
-
+    List<VideoItem> videoItemList;
     private Handler mainHandler;
     private EventLogger eventLogger;
     private SimpleExoPlayerView simpleExoPlayerView;
-
     private SimpleExoPlayer player;
     private MappingTrackSelector trackSelector;
     private boolean playerNeedsSource;
     private DataSource.Factory mediaDataSourceFactory;
-
     private Timeline.Window window;
-
     private boolean shouldAutoPlay;
     private boolean isTimelineStatic;
     private int playerWindow;
     private long playerPosition;
+    private boolean autoPlayNext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        shouldAutoPlay = true;
+        autoPlayNext = false;
 
         if (Build.VERSION.SDK_INT < 16) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -72,21 +86,9 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
             // Hide the status bar.
             int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
             decorView.setSystemUiVisibility(uiOptions);
-            // Remember that you should never show the action bar if the
-            // status bar is hidden, so hide that too if necessary.
-            ActionBar actionBar = getActionBar();
-            try {
-                assert actionBar != null;
-                if (actionBar != null) actionBar.hide();
-            } catch (java.lang.NullPointerException e) {
-                e.printStackTrace();
-            }
         }
 
         mediaDataSourceFactory = buildDataSourceFactory(true);
-
-        shouldAutoPlay = true;
-
         setContentView(R.layout.activity_video_player);
 
         mainHandler = new Handler();
@@ -100,10 +102,20 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
 
     private void initializePlayer() {
         Intent intent = getIntent();
-        String url = intent.getStringExtra(EXTRA_MESSAGE);
-        if (url == null) {
-            onBackPressed();
-            return;
+        String url = null;
+        int pos = 0;
+        Boolean play_list = intent.getBooleanExtra(EXTRA_MESSAGE_PLAYLIST, false);
+        if (play_list) {
+            String json_list = intent.getStringExtra(EXTRA_MESSAGE_LIST_OF_URL);
+            pos = intent.getIntExtra(EXTRA_MESSAGE_POS, 0);
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<VideoItem>>() {
+            }.getType();
+            videoItemList = gson.fromJson(json_list, type);
+            autoPlayNext = true;
+        } else {
+            autoPlayNext = false;
+            url = intent.getStringExtra(EXTRA_MESSAGE_SIGNLE_URL);
         }
         if (player == null) {
             eventLogger = new EventLogger();
@@ -130,8 +142,8 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
             playerNeedsSource = true;
         }
         if (playerNeedsSource) {
-
-            if (url != null) {
+            playerNeedsSource = false;
+            if (!play_list) {
                 Uri uri = null;
                 try {
                     uri = Uri.parse(url);
@@ -140,15 +152,19 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
                 } finally {
                     if (uri != null) {
                         MediaSource mediaSource = buildMediaSource(uri);
-
                         player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
-                        playerNeedsSource = false;
                     } else {
                         onBackPressed();
                     }
                 }
             } else {
-                onBackPressed();
+                MediaSource[] mediaSources = new MediaSource[videoItemList.size() - pos];
+                for (int i = pos; i < videoItemList.size(); i++) {
+                    Uri uri = Uri.parse(videoItemList.get(i).getVideourl());
+                    mediaSources[i - pos] = buildMediaSource(uri);
+                }
+                MediaSource mediaSource = new ConcatenatingMediaSource(mediaSources);
+                player.prepare(mediaSource, !isTimelineStatic, !isTimelineStatic);
             }
         }
     }
@@ -240,21 +256,47 @@ public class VideoPlayerActivity extends Activity implements ExoPlayer.EventList
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
+        switch (playbackState) {
+            case ExoPlayer.STATE_ENDED:
+                if (autoPlayNext) {
+                    // do auto play next here
+                    Log.d("test", "play next video");
+                } else {
+                    onBackPressed();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
     public void onPlayerError(ExoPlaybackException e) {
         playerNeedsSource = true;
+        show_alert_message(getText(R.string.app_name).toString(), "Video error!");
     }
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
-
     }
 
     @Override
     public void onTrackSelectionsChanged(TrackSelections<? extends MappingTrackSelector.MappedTrackInfo> trackSelections) {
+    }
 
+    private void show_alert_message(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(VideoPlayerActivity.this);
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }

@@ -10,16 +10,17 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 
-import com.activeandroid.query.Select;
-import com.example.patrick.tumblrloader.Adaptor.BloggerItem;
-import com.example.patrick.tumblrloader.Adaptor.BloggerListingOnItemClickListener;
-import com.example.patrick.tumblrloader.Adaptor.BloggerListingViewAdaptor;
+import com.example.patrick.tumblrloader.Adapter.BloggerItem;
+import com.example.patrick.tumblrloader.Adapter.BloggerListingOnItemClickListener;
+import com.example.patrick.tumblrloader.Adapter.BloggerListingViewAdapter;
 import com.example.patrick.tumblrloader.DB.BloggerDB;
+import com.example.patrick.tumblrloader.DB.DataBaseInerator;
 import com.example.patrick.tumblrloader.R;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends Activity {
     public final static String EXTRA_MESSAGE = "com.example.patrick.tumblrloader.main";
@@ -31,9 +32,12 @@ public class MainActivity extends Activity {
 
     private List<BloggerItem> bloggerList;
 
+    private DataBaseInerator db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = new DataBaseInerator();
 
         setContentView(R.layout.activity_main);
 
@@ -51,8 +55,15 @@ public class MainActivity extends Activity {
                         case KeyEvent.KEYCODE_DPAD_CENTER:
                         case KeyEvent.KEYCODE_ENTER:
                             String blogger_name = mEdit.getText().toString();
-                            if (blogger_name.length() > 0)
-                                loadBloggerListing(blogger_name);
+                            if (blogger_name.length() > 0) {
+                                Random random = new Random();
+                                int rand = random.nextInt(2);
+                                if (rand == 0) {
+                                    loadBloggerGridListing(blogger_name);
+                                } else {
+                                    loadBloggerListing(blogger_name);
+                                }
+                            }
                             return true;
                         default:
                             break;
@@ -81,7 +92,7 @@ public class MainActivity extends Activity {
         List<BloggerDB> list = new ArrayList<>();
 
         try {
-            list = new Select().from(BloggerDB.class).execute();
+            list = db.findBloggers();
         }  catch (java.lang.NullPointerException e) {
             e.printStackTrace();
         }
@@ -93,7 +104,7 @@ public class MainActivity extends Activity {
             Calendar c = Calendar.getInstance();
             long cur_time = c.getTimeInMillis();
             if (cur_time - _time >= time_interval) {
-                BloggerDB b = new Select().from(BloggerDB.class).where("Name = ?", list.get(i).name).executeSingle();
+                BloggerDB b = db.findBloggerByName(list.get(i).name);
                 b.json = null;
                 b.save();
             }
@@ -101,11 +112,17 @@ public class MainActivity extends Activity {
             bloggerList.add(item);
         }
 
-        BloggerListingViewAdaptor adapter = new BloggerListingViewAdaptor(bloggerList);
+        BloggerListingViewAdapter adapter = new BloggerListingViewAdapter(bloggerList);
         adapter.setOnItemClickListener(new BloggerListingOnItemClickListener() {
             @Override
             public void onItemClick(BloggerItem item) {
-                loadBloggerListing(item.getName());
+                Random random = new Random();
+                int i = random.nextInt(2);
+                if (i == 0) {
+                    loadBloggerGridListing(item.getName());
+                } else {
+                    loadBloggerListing(item.getName());
+                }
             }
         });
         mRecyclerView.setAdapter(adapter);
@@ -113,6 +130,12 @@ public class MainActivity extends Activity {
 
     private void loadBloggerListing(String blog) {
         Intent intent = new Intent(this, VideoListingActivity.class);
+        intent.putExtra(EXTRA_MESSAGE, blog);
+        startActivity(intent);
+    }
+
+    private void loadBloggerGridListing(String blog) {
+        Intent intent = new Intent(this, VideoListingCardViewActivity.class);
         intent.putExtra(EXTRA_MESSAGE, blog);
         startActivity(intent);
     }
@@ -128,7 +151,7 @@ public class MainActivity extends Activity {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int swipedPosition = viewHolder.getAdapterPosition();
-                BloggerListingViewAdaptor adapter = (BloggerListingViewAdaptor)mRecyclerView.getAdapter();
+                BloggerListingViewAdapter adapter = (BloggerListingViewAdapter) mRecyclerView.getAdapter();
                 adapter.remove(swipedPosition);
             }
 

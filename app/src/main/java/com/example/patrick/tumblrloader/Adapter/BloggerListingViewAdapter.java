@@ -1,4 +1,4 @@
-package com.example.patrick.tumblrloader.Adaptor;
+package com.example.patrick.tumblrloader.Adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,18 +6,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.activeandroid.query.Select;
 import com.example.patrick.tumblrloader.DB.BloggerDB;
+import com.example.patrick.tumblrloader.DB.DataBaseInerator;
 import com.example.patrick.tumblrloader.R;
 
 import java.util.List;
 
-public class BloggerListingViewAdaptor extends RecyclerView.Adapter<BloggerListingViewAdaptor.BlogListViewHolder> {
+public class BloggerListingViewAdapter extends RecyclerView.Adapter<BloggerListingViewAdapter.BlogListViewHolder> {
     private List<BloggerItem> bloggerList;
 
     private BloggerListingOnItemClickListener onItemClickListener;
 
-    public BloggerListingViewAdaptor(List<BloggerItem> bloggerList) {
+    public BloggerListingViewAdapter(List<BloggerItem> bloggerList) {
         this.bloggerList = bloggerList;
         this.onItemClickListener = null;
     }
@@ -63,6 +63,19 @@ public class BloggerListingViewAdaptor extends RecyclerView.Adapter<BloggerListi
         return (null != bloggerList ? bloggerList.size() : 0);
     }
 
+    public void remove(int position) {
+        if (position < 0 || position >= bloggerList.size()) {
+            return;
+        }
+
+        List<BloggerDB> list = new DataBaseInerator().findBloggers();
+        BloggerDB item = list.get(position);
+        item.delete();
+
+        bloggerList.remove(position);
+        notifyItemRemoved(position);
+    }
+
     class BlogListViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
 
@@ -71,17 +84,5 @@ public class BloggerListingViewAdaptor extends RecyclerView.Adapter<BloggerListi
             this.textView = (TextView) view.findViewById(R.id.blogger_name);
             this.textView.setTag(this);
         }
-    }
-
-    public void remove(int position) {
-        if (position < 0 || position >= bloggerList.size()) {
-            return;
-        }
-
-        List<BloggerDB> list = new Select().from(BloggerDB.class).execute();
-        list.get(position);
-
-        bloggerList.remove(position);
-        notifyItemRemoved(position);
     }
 }

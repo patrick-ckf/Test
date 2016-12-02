@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="fill_parent"
-    android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <TextView
-        android:text="TextView"
+        android:id="@+id/blogger_name"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:textSize="30sp"
-        android:textColor="#C0C0C0"
         android:background="@color/colorPrimary"
-        android:id="@+id/blogger_name"
+        android:gravity="left|center"
         android:paddingStart="@dimen/activity_two_side_margin"
-        android:gravity="left|center" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:layout_below="@+id/blogger_name"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true" />
+        android:text="TextView"
+        android:textColor="#C0C0C0"
+        android:textSize="30sp" />
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -29,5 +21,33 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="invisible" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="fill_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/toggleButton"
+        android:paddingTop="@dimen/activity_vertical_margin" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/blogger_name"
+        android:layout_marginStart="@dimen/activity_two_side_margin" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/recycler_view"
+        android:layout_below="@+id/blogger_name"
+        android:layout_toStartOf="@+id/toggleButton"
+        android:gravity="center"
+        android:text="@string/auto_play"
+        android:textSize="24sp" />
 
 </RelativeLayout>

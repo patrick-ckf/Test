@@ -1,13 +1,10 @@
-package com.example.patrick.tumblrloader.Adaptor;
+package com.example.patrick.tumblrloader.Adapter;
 
 import org.json.JSONObject;
 
 public class VideoItem {
     private String videourl;
     private String thumbnail;
-
-    public String getVideourl () { return this.videourl; }
-    String getThumbnail() { return this.thumbnail; }
 
     // Constructor to convert JSON object into a Java class instance
     public VideoItem(JSONObject object){
@@ -22,5 +19,13 @@ public class VideoItem {
             if (videourl != null) this.videourl = videourl;
             if (thumbnail != null) this.thumbnail = thumbnail;
         }
+    }
+
+    public String getVideourl() {
+        return this.videourl;
+    }
+
+    String getThumbnail() {
+        return this.thumbnail;
     }
 }

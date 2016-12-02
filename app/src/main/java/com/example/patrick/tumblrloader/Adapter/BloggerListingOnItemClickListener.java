@@ -1,4 +1,4 @@
-package com.example.patrick.tumblrloader.Adaptor;
+package com.example.patrick.tumblrloader.Adapter;
 
 
 public interface BloggerListingOnItemClickListener {

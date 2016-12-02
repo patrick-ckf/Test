@@ -1,4 +1,4 @@
-package com.example.patrick.tumblrloader.Adaptor;
+package com.example.patrick.tumblrloader.Adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,18 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.patrick.tumblrloader.Activity.VideoListingActivity;
 import com.example.patrick.tumblrloader.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class VideoListingViewAdaptor extends RecyclerView.Adapter<VideoListingViewAdaptor.ImageTextViewHolder> {
+public class VideoListingViewAdapter extends RecyclerView.Adapter<VideoListingViewAdapter.ImageTextViewHolder> {
     private List<VideoItem> videoItemList;
     private Context mContext;
 
     private VideoListingOnItemClickListener videoListingOnItemClickListener;
 
-    public VideoListingViewAdaptor(Context context, List<VideoItem> videoItemList) {
+    public VideoListingViewAdapter(Context context, List<VideoItem> videoItemList) {
         this.videoItemList = videoItemList;
         this.mContext = context;
         this.videoListingOnItemClickListener = null;
@@ -53,12 +54,19 @@ public class VideoListingViewAdaptor extends RecyclerView.Adapter<VideoListingVi
                 ImageTextViewHolder holder = (ImageTextViewHolder) v.getTag();
                 if (holder != null) {
                     int pos = holder.getAdapterPosition();
+                    VideoListingActivity parent = (VideoListingActivity) mContext;
+                    boolean autoPlay = parent.isAutoPlay();
                     if (pos >= 0) {
-                        VideoItem feedItem = videoItemList.get(pos);
-                        if (feedItem != null) {
-                            videoListingOnItemClickListener.onItemClick(feedItem);
+                        if (autoPlay) {
+                            videoListingOnItemClickListener.onItemClick(pos);
+                        } else {
+                            VideoItem feedItem = videoItemList.get(pos);
+                            if (feedItem != null) {
+                                videoListingOnItemClickListener.onItemClick(feedItem);
+                            }
                         }
                     }
+
                 }
             }
         };

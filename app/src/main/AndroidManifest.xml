@@ -5,13 +5,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:fullBackupContent="true"
+        android:name="com.example.patrick.tumblrloader.TumblrLoaderApplication"
         android:allowBackup="true"
         android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:name="com.example.patrick.tumblrloader.TumblrLoaderApplication"
         android:theme="@style/AppTheme">
 
         <meta-data android:name="AA_DB_NAME" android:value="TumblrLoader.db" />
@@ -20,16 +20,16 @@
             android:name="AA_MODELS"
             android:value="com.example.patrick.tumblrloader.DB.BloggerDB" />
 
-
-        <activity android:name=".Activity.MainActivity">
+        <activity android:name=".Activity.MainActivity" />
+        <activity android:name=".Activity.VideoListingActivity" />
+        <activity android:name=".Activity.VideoPlayerActivity" />
+        <activity android:name=".Activity.VideoListingCardViewActivity" />
+        <activity android:name=".Activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activity.VideoListingActivity" />
-        <activity android:name=".Activity.VideoPlayerActivity" />
     </application>
 
 </manifest>
